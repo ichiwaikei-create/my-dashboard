@@ -116,7 +116,7 @@ function App() {
         </>
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex safe-bottom">
+      <nav className="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 flex safe-bottom shrink-0">
         <TabButton
           active={tab === "plan"}
           onClick={() => setTab("plan")}

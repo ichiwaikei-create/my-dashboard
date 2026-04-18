@@ -39,7 +39,7 @@ export function TodoList({ todoFile, onToggle, isOffline, isSyncing, onRefresh }
   const completedTodos = todoFile.todos.filter((t) => (t.category as string) === "完了" || t.done);
 
   return (
-    <div className="flex-1 overflow-y-auto pb-20">
+    <div className="flex-1 overflow-y-auto pb-4">
       {/* Day label */}
       {todoFile.dayLabel && (
         <div className="px-4 pt-3 pb-1">

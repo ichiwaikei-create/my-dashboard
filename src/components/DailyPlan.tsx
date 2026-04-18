@@ -32,7 +32,7 @@ export function DailyPlan({ plan, onRefresh, onCreatePlan, isCreating }: DailyPl
   }
 
   return (
-    <div className="flex-1 overflow-y-auto pb-20">
+    <div className="flex-1 overflow-y-auto pb-4">
       {/* Day type badge */}
       {plan.dayType && (
         <div className="px-4 pt-3 pb-1">
