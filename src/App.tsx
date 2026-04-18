@@ -2,16 +2,19 @@ import { useState, useEffect } from "react";
 import { Header } from "./components/Header";
 import { TodoList } from "./components/TodoList";
 import { DailyPlan } from "./components/DailyPlan";
+import { DailyReportForm } from "./components/DailyReportForm";
 import { Settings } from "./components/Settings";
 import { useSettings } from "./hooks/useSettings";
 import { useGitHubData } from "./hooks/useGitHubData";
+import { useGitHubReport } from "./hooks/useGitHubReport";
 
-type Tab = "plan" | "todo" | "settings";
+type Tab = "plan" | "todo" | "report" | "settings";
 
 function App() {
   const { settings, saveSettings, isConfigured } = useSettings();
   const { todoFile, dailyPlan, isLoading, error, isOffline, isSyncing, toggleTodo, refresh } =
     useGitHubData(settings, isConfigured);
+  const { report, isSyncing: reportSyncing, saveReport } = useGitHubReport(settings, isConfigured);
 
   const [tab, setTab] = useState<Tab>(isConfigured ? "plan" : "settings");
 
@@ -56,6 +59,13 @@ function App() {
               onRefresh={refresh}
             />
           )}
+          {tab === "report" && (
+            <DailyReportForm
+              existing={report}
+              isSyncing={reportSyncing}
+              onSave={saveReport}
+            />
+          )}
           {tab === "settings" && <Settings settings={settings} onSave={saveSettings} />}
         </>
       )}
@@ -82,6 +92,17 @@ function App() {
           label="TODO"
         />
         <TabButton
+          active={tab === "report"}
+          onClick={() => setTab("report")}
+          icon={
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+            </svg>
+          }
+          label="日報"
+          badge={!report}
+        />
+        <TabButton
           active={tab === "settings"}
           onClick={() => setTab("settings")}
           icon={
@@ -102,22 +123,29 @@ function TabButton({
   onClick,
   icon,
   label,
+  badge,
 }: {
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
+  badge?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex flex-col items-center gap-0.5 py-2 ${
+      className={`flex-1 flex flex-col items-center gap-0.5 py-2 relative ${
         active
           ? "text-blue-600 dark:text-blue-400"
           : "text-slate-400 dark:text-slate-500"
       }`}
     >
-      {icon}
+      <div className="relative">
+        {icon}
+        {badge && (
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+        )}
+      </div>
       <span className="text-[10px]">{label}</span>
     </button>
   );

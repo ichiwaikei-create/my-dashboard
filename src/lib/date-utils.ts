@@ -1,5 +1,10 @@
 const DAY_NAMES = ["日", "月", "火", "水", "木", "金", "土"];
 
+export function getDayOfWeek(dateStr: string): string {
+  const date = new Date(dateStr + "T00:00:00");
+  return DAY_NAMES[date.getDay()];
+}
+
 export function getTodayString(): string {
   const now = new Date();
   const y = now.getFullYear();

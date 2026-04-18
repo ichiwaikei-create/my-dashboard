@@ -35,3 +35,17 @@ export interface AppSettings {
   repoOwner: string;
   repoName: string;
 }
+
+export interface DailyReport {
+  date: string;
+  moodScore: number;
+  healthScore: number;
+  doneToday: string;
+  wentWell: string;
+  difficulties: string;
+  insights: string;
+  tomorrowTop: string;
+  tomorrowTasks: string[];
+  memo: string;
+  sha?: string;
+}
