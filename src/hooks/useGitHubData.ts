@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { AppSettings, TodoFile, DailyPlan } from "../types";
 import { fetchFile, updateFile, ConflictError } from "../lib/github-api";
 import { parseTodoFile, parseDailyPlan } from "../lib/markdown-parser";
-import { toggleTodoLine, moveTodoToCompleted } from "../lib/markdown-writer";
+import { toggleTodoLine, moveTodoToCompleted, moveTodoFromCompleted } from "../lib/markdown-writer";
 import { getTodayString } from "../lib/date-utils";
 
 const CACHE_KEY_TODO = "dashboard-cache-todo";
@@ -121,10 +121,10 @@ export function useGitHubData(settings: AppSettings, isConfigured: boolean): Use
       try {
         let newContent: string;
         if (!wasDone) {
-          // Checking off -> move to completed section
           newContent = moveTodoToCompleted(todoFile.rawContent, lineIndex);
+        } else if (todo.category === "完了") {
+          newContent = moveTodoFromCompleted(todoFile.rawContent, lineIndex, "通常");
         } else {
-          // Unchecking -> just toggle in place
           newContent = toggleTodoLine(todoFile.rawContent, lineIndex);
         }
 

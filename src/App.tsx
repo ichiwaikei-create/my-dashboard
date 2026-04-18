@@ -7,6 +7,9 @@ import { Settings } from "./components/Settings";
 import { useSettings } from "./hooks/useSettings";
 import { useGitHubData } from "./hooks/useGitHubData";
 import { useGitHubReport } from "./hooks/useGitHubReport";
+import { updateFile } from "./lib/github-api";
+import { createEmptyPlan } from "./lib/plan-writer";
+import { getTodayString } from "./lib/date-utils";
 
 type Tab = "plan" | "todo" | "report" | "settings";
 
@@ -17,6 +20,21 @@ function App() {
   const { report, isSyncing: reportSyncing, saveReport } = useGitHubReport(settings, isConfigured);
 
   const [tab, setTab] = useState<Tab>(isConfigured ? "plan" : "settings");
+  const [isCreatingPlan, setIsCreatingPlan] = useState(false);
+
+  const handleCreatePlan = async () => {
+    setIsCreatingPlan(true);
+    try {
+      const today = getTodayString();
+      const content = createEmptyPlan(today);
+      await updateFile(settings, `plans/daily/${today}.md`, content, "", `📅 プラン作成: ${today}`);
+      await refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsCreatingPlan(false);
+    }
+  };
 
   useEffect(() => {
     if (!isConfigured) setTab("settings");
@@ -49,7 +67,7 @@ function App() {
 
       {!isLoading && (
         <>
-          {tab === "plan" && <DailyPlan plan={dailyPlan} onRefresh={refresh} />}
+          {tab === "plan" && <DailyPlan plan={dailyPlan} onRefresh={refresh} onCreatePlan={handleCreatePlan} isCreating={isCreatingPlan} />}
           {tab === "todo" && (
             <TodoList
               todoFile={todoFile}

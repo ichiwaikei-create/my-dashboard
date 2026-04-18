@@ -21,6 +21,13 @@ export function formatDateJapanese(dateStr: string): string {
   return `${month}月${day}日 (${dayOfWeek})`;
 }
 
+export function isWorkday(dateStr: string): boolean {
+  const date = new Date(dateStr + "T00:00:00");
+  const dow = date.getDay();
+  // 木(4)・金(5) = 休日
+  return dow !== 4 && dow !== 5;
+}
+
 export function isCurrentTimeBlock(timeStr: string): boolean {
   const match = timeStr.match(/(\d{2}):(\d{2})\s*-\s*(\d{2}):(\d{2})/);
   if (!match) return false;

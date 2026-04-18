@@ -53,7 +53,7 @@ export async function updateFile(
       Accept: "application/vnd.github.v3+json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ message, content: encoded, sha }),
+    body: JSON.stringify(sha ? { message, content: encoded, sha } : { message, content: encoded }),
   });
 
   if (res.status === 409) {

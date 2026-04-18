@@ -4,15 +4,26 @@ import { isCurrentTimeBlock } from "../lib/date-utils";
 interface DailyPlanProps {
   plan: DailyPlanType | null;
   onRefresh: () => void;
+  onCreatePlan?: () => Promise<void>;
+  isCreating?: boolean;
 }
 
-export function DailyPlan({ plan, onRefresh }: DailyPlanProps) {
+export function DailyPlan({ plan, onRefresh, onCreatePlan, isCreating }: DailyPlanProps) {
   if (!plan) {
     return (
       <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-slate-500 p-8">
-        <div className="text-center">
+        <div className="text-center space-y-3">
           <p className="text-lg">今日のプランはありません</p>
-          <button onClick={onRefresh} className="mt-4 text-sm text-blue-500 active:text-blue-700">
+          {onCreatePlan && (
+            <button
+              onClick={onCreatePlan}
+              disabled={isCreating}
+              className="block mx-auto bg-blue-600 text-white text-sm px-4 py-2 rounded-lg disabled:opacity-50"
+            >
+              {isCreating ? "作成中..." : "今日のプランを作成"}
+            </button>
+          )}
+          <button onClick={onRefresh} className="block mx-auto text-sm text-slate-400 active:text-blue-700">
             再読み込み
           </button>
         </div>
