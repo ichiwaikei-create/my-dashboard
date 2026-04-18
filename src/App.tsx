@@ -7,9 +7,10 @@ import { Settings } from "./components/Settings";
 import { useSettings } from "./hooks/useSettings";
 import { useGitHubData } from "./hooks/useGitHubData";
 import { useGitHubReport } from "./hooks/useGitHubReport";
-import { updateFile } from "./lib/github-api";
-import { createEmptyPlan } from "./lib/plan-writer";
-import { getTodayString } from "./lib/date-utils";
+import { fetchFile, updateFile } from "./lib/github-api";
+import { createEmptyPlan, createPlanFromReport } from "./lib/plan-writer";
+import { getTodayString, getTomorrowString } from "./lib/date-utils";
+import type { DailyReport } from "./types";
 
 type Tab = "plan" | "todo" | "report" | "settings";
 
@@ -21,6 +22,27 @@ function App() {
 
   const [tab, setTab] = useState<Tab>(isConfigured ? "plan" : "settings");
   const [isCreatingPlan, setIsCreatingPlan] = useState(false);
+  const [planAutoCreated, setPlanAutoCreated] = useState(false);
+
+  const handleSaveReport = async (report: DailyReport) => {
+    await saveReport(report);
+
+    // 翌日のプランが未作成であれば自動生成
+    const tomorrow = getTomorrowString();
+    const planPath = `plans/daily/${tomorrow}.md`;
+    try {
+      const existing = await fetchFile(settings, planPath);
+      if (!existing) {
+        const content = createPlanFromReport(tomorrow, report.tomorrowTop, report.tomorrowTasks);
+        await updateFile(settings, planPath, content, "", `📅 翌日プラン自動生成: ${tomorrow}`);
+        setPlanAutoCreated(true);
+        setTimeout(() => setPlanAutoCreated(false), 4000);
+      }
+    } catch (err) {
+      // プラン生成失敗は日報保存の成功に影響させない
+      console.error("翌日プラン生成失敗:", err);
+    }
+  };
 
   const handleCreatePlan = async () => {
     setIsCreatingPlan(true);
@@ -65,6 +87,12 @@ function App() {
         </div>
       )}
 
+      {planAutoCreated && (
+        <div className="absolute top-14 left-4 right-4 z-20 bg-green-600 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
+          翌日のプランを自動生成しました
+        </div>
+      )}
+
       {!isLoading && (
         <>
           {tab === "plan" && <DailyPlan plan={dailyPlan} onRefresh={refresh} onCreatePlan={handleCreatePlan} isCreating={isCreatingPlan} />}
@@ -81,7 +109,7 @@ function App() {
             <DailyReportForm
               existing={report}
               isSyncing={reportSyncing}
-              onSave={saveReport}
+              onSave={handleSaveReport}
             />
           )}
           {tab === "settings" && <Settings settings={settings} onSave={saveSettings} />}

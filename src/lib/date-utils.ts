@@ -21,6 +21,15 @@ export function formatDateJapanese(dateStr: string): string {
   return `${month}月${day}日 (${dayOfWeek})`;
 }
 
+export function getTomorrowString(): string {
+  const now = new Date();
+  now.setDate(now.getDate() + 1);
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export function isWorkday(dateStr: string): boolean {
   const date = new Date(dateStr + "T00:00:00");
   const dow = date.getDay();

@@ -1,5 +1,86 @@
 import { getDayOfWeek, isWorkday } from "./date-utils";
 
+export function createPlanFromReport(
+  date: string,
+  tomorrowTop: string,
+  tomorrowTasks: string[]
+): string {
+  const dow = getDayOfWeek(date);
+  const workday = isWorkday(date);
+  const dayType = workday ? "勤務日" : "休日";
+  const topLine = tomorrowTop.trim() ? `- ${tomorrowTop.trim()}` : "-";
+  const tasks = tomorrowTasks.map((t) => t.trim()).filter(Boolean);
+
+  if (workday) {
+    return `---
+date: "${date}"
+type: integrated_daily_plan
+day_type: "${dayType}"
+todo_file: "../../todos/${date}.md"
+---
+
+# 統合実行計画 - ${date} (${dow})
+
+## 今日の最重要
+
+${topLine}
+
+## 時間ブロック
+
+### 20:00 - 21:00 筋トレ
+-
+
+### 21:00 - 21:30 最重要タスク
+${tasks[0] ? `- ${tasks[0]}` : "-"}
+
+### 21:30 - 22:30 メイン作業
+${tasks[1] ? `- ${tasks[1]}` : "-"}${tasks[2] ? `\n- ${tasks[2]}` : ""}
+
+### 22:30 - 23:00 DM返信・翌日準備
+-
+
+## 最低ライン
+
+- 筋トレ + メイン作業1つ完了
+`;
+  } else {
+    return `---
+date: "${date}"
+type: integrated_daily_plan
+day_type: "${dayType}"
+todo_file: "../../todos/${date}.md"
+---
+
+# 統合実行計画 - ${date} (${dow})
+
+## 今日の最重要
+
+${topLine}
+
+## 時間ブロック
+
+### 09:00 - 10:00 筋トレ
+-
+
+### 10:30 - 12:00 深い思考ブロック
+${tasks[0] ? `- ${tasks[0]}` : "-"}
+
+### 13:00 - 15:00 コンテンツ制作
+${tasks[1] ? `- ${tasks[1]}` : "-"}
+
+### 15:30 - 17:00 投稿作成・素材準備
+${tasks[2] ? `- ${tasks[2]}` : "-"}
+
+### 17:00 - 18:00 事務・DM返信・振り返り
+-
+
+## 最低ライン
+
+- 筋トレ + 深い思考ブロック1つ + 投稿1本
+`;
+  }
+}
+
 export function createEmptyPlan(date: string): string {
   const dow = getDayOfWeek(date);
   const workday = isWorkday(date);
